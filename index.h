@@ -1,3 +1,4 @@
+const char MAIN_page[200] PROGMEM = R"=====(
 <!doctype html>
 <html lang="en">
     <head>
@@ -20,7 +21,8 @@
             var xhttp = new XMLHttpRequest();
             xhttp.addEventListener("load", function() {
                 if (this.status == 200) {
-                    var initial_door_state = document.getElementById("garage_state")
+                    var initial_door_state =
+                       document.getElementById("garage_state")
                     var alert_div = document.getElementById("door_alert");
                     var curr_alert_class = alert_div.className
 
@@ -65,5 +67,5 @@
     </div>
     <!-- <form method="post" action="" onsubmit="toggleGarage();return false;"> -->
         <button class="btn btn-primary" onclick=toggleGarage() />Toggle Garage</button>
-        <!-- </form> -->
-</html>
+    <!-- </form> -->
+)=====";
