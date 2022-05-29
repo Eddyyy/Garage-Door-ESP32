@@ -1,0 +1,10 @@
+profiles:
+  ESP32_DFRobot:
+    notes: Main platform project is designed for
+    fqbn: DFRobot:esp32:esp32-e
+    platforms:
+      - platform: DFRobot:esp32 (0.2.1)
+        platform_index_url: http://download.dfrobot.top/FireBeetle/package_DFRobot_index.json
+    libraries:
+      - ESP32Servo (0.11.0)
+
