@@ -1,0 +1,6 @@
+{
+  "cpu": {
+    "fqbn": "DFRobot:esp32:esp32-e",
+    "port": ""
+  }
+}

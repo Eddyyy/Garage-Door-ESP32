@@ -7,34 +7,44 @@
 #include <WiFiClient.h>
 #include <WebServer.h>
 
+#include <ESP32Servo.h>
+
 #include "index.h"  //Web page header file
 
 WebServer server(80);
 
 //Enter your SSID and PASSWORD
-const char* ssid = "Telstra9D0014";
-const char* password = "698a9e7e2p";
+// const char* ssid = "Telstra9D0014";
+// const char* password = "698a9e7e2p";
+const char* ssid = "Excession-2.4G";
+const char* password = "The Sleeper Service";
 
 // Garage door sw
 bool limitSwitch = true;
+bool actuateDoor = false;
 
 // Delay time for servo acuation (ms)
 const int servoTimer = 1000;
-int timePast = 0;
+unsigned long timerPast = 0;
 
 // Servo states
-#define S_OPEN = 0x00;
-#define S_ACTUATE = 0x01;
+#define S_OPEN 0x00
+#define S_ACTUATE 0x01
 int servoState = S_OPEN;
 
-#define SERVO_PIN 13
+#define PWM_HZ 100
+#define PWM_MIN 500
+#define PWM_MAX 2400
+
+#define SERVO_PIN 15
+Servo garageServo;  // create servo object to control a servo
 
 //===============================================================
 // This routine is executed when you open its IP in browser
 //===============================================================
 void handleRoot() {
     String s = MAIN_page; //Read HTML contents
-    erver.send(200, "text/html", s); //Send web page
+    server.send(200, "text/html", s); //Send web page
 }
  
 // Return status of garage door limit switch
@@ -44,9 +54,13 @@ void handleLimitSW() {
 }
 
 // Recieve garage door toggle request
-void handleLimitSW() {
+void handleGarageToggle() {
     actuateDoor = true;
     server.send(200, "text/plane", "Success");
+
+    String doorStatus = (limitSwitch) ? "down" : "up";
+    Serial.print("Recieved toggle request, doorStatus: ");
+    Serial.println(doorStatus);
 }
 
 //===============================================================
@@ -54,12 +68,21 @@ void handleLimitSW() {
 //===============================================================
 
 void setup(void){
+	// Allow allocation of all timers
+	ESP32PWM::allocateTimer(0);
+	ESP32PWM::allocateTimer(1);
+	ESP32PWM::allocateTimer(2);
+	ESP32PWM::allocateTimer(3);
+	garageServo.setPeriodHertz(PWM_HZ);    // standard 50 hz servo
+    // attaches the servo on pin 15 to the servo object
+	garageServo.attach(SERVO_PIN, PWM_MIN, PWM_MAX);
+
     Serial.begin(115200);
     Serial.println();
     Serial.println("Booting Sketch...");
 
     // Zero servo motor
-    analogWrite(0);
+    garageServo.write(0);
 
     /*
     //ESP32 As access point
@@ -91,7 +114,7 @@ void setup(void){
     //To get update of grg door state
     server.on("/check_garage_door", handleLimitSW);
     //To operate garage door
-    server.on("/toggleGarage", handleGarageToggle);
+    server.on("/toggle_garage_door", handleGarageToggle);
  
     server.begin();                  //Start server
     Serial.println("HTTP server started");
@@ -110,17 +133,17 @@ void loop(void){
 
             // On Transition
             if (actuateDoor) {
-                analogWrite(1500);
+                garageServo.write(90);
                 timerPast = millis();
                 servoState = S_ACTUATE;
             }
             break;
         case S_ACTUATE:
-            analogWrite(1500);
+            garageServo.write(90);
 
             // On Transition
             if ((millis() - timerPast) >= servoTimer) {
-                analogWrite(0);
+                garageServo.write(0);
                 actuateDoor = false;
                 servoState = S_OPEN;
 
@@ -129,5 +152,5 @@ void loop(void){
             }
             break;
     }
-    delayMillis(100);
+    delay(100);
 }

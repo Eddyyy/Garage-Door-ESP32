@@ -1,4 +1,4 @@
-const char MAIN_page[200] PROGMEM = R"=====(
+const char MAIN_page[3000] PROGMEM = R"=====(
 <!doctype html>
 <html lang="en">
     <head>
