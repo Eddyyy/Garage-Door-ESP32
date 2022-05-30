@@ -130,6 +130,7 @@ void loop(void){
     // Servo state machine
     switch (servoState) {
         case S_OPEN:
+            garageServo.write(0);
 
             // On Transition
             if (actuateDoor) {
@@ -148,6 +149,7 @@ void loop(void){
                 servoState = S_OPEN;
 
                 // Temp limit switch sim
+                // TODO
                 limitSwitch = !limitSwitch;
             }
             break;
